@@ -1,0 +1,1370 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "SPF JSON Schema",
+    "termsOfService" : "https://www.symmetry.com/terms",
+    "contact" : {
+      "name" : "Symmetry Software",
+      "url" : "https://www.symmetry.com",
+      "email" : "support@symmetry.com"
+    },
+    "version" : "2024-R6"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "Address" : {
+        "required" : [ "city", "streetAddress1" ],
+        "type" : "object",
+        "properties" : {
+          "streetAddress1" : {
+            "pattern" : "^[A-Za-z0-9#/,.&'\\(\\)\\- \\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]+$",
+            "type" : "string",
+            "description" : "Civic number and street name of the address. Cannot be null or empty.",
+            "types" : [ "string" ]
+          },
+          "streetAddress2" : {
+            "pattern" : "^[A-Za-z0-9#/,.&'\\(\\)\\- \\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]+$",
+            "type" : "string",
+            "description" : "Apartment, floor, unit number, or other address designation that is part of the address.",
+            "types" : [ "string" ]
+          },
+          "city" : {
+            "pattern" : "^[A-Za-z.,&'\\- \\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]+$",
+            "type" : "string",
+            "description" : "City of the address. Cannot be null or empty.",
+            "types" : [ "string" ]
+          },
+          "state" : {
+            "pattern" : "^(AL|AK|AZ|AR|AS|CA|CO|CT|DE|DC|FM|FL|GA|GU|HI|ID|IL|IN|IA|KS|KY|LA|ME|MH|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|MP|OH|OK|OR|PW|PA|PR|RI|SC|SD|TN|TX|UT|VT|VA|VI|WA|WV|WI|WY)$",
+            "type" : "string",
+            "description" : "States and territories",
+            "types" : [ "string" ]
+          },
+          "zipCode" : {
+            "pattern" : "^[0-9]{5}$|^[0-9]{5}-[0-9]{4}$|^[0-9]{9}$",
+            "type" : "string",
+            "description" : "Address zip code. Must be exactly 5 or exactly 9 digits. All non-numeric characters will be automatically removed before validation (for example, 85260-2662 will be validated as 852602662). For SPF US only.",
+            "types" : [ "string" ]
+          },
+          "stateEIN" : {
+            "pattern" : "^[0-9a-zA-Z /_-]+$",
+            "type" : "string",
+            "description" : "State employer identification number. For SPF US only.",
+            "types" : [ "string" ]
+          },
+          "provinceTerritory" : {
+            "pattern" : "^(AB|BC|MB|NB|NL|NT|NS|NU|ON|PE|QC|SK|YT)$",
+            "type" : "string",
+            "description" : "States and territories",
+            "types" : [ "string" ]
+          },
+          "postalCode" : {
+            "pattern" : "^(?!.*[DFIOQU])[A-VXY][0-9][A-Z] ?[0-9][A-Z][0-9]$",
+            "type" : "string",
+            "description" : "Postal code. For Canadian SPF only.",
+            "types" : [ "string" ]
+          }
+        }
+      },
+      "AddressChangeWarning" : {
+        "type" : "object",
+        "properties" : {
+          "submittedAddress" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "normalizedAddress" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "warnings" : {
+            "type" : "array",
+            "description" : "Warnings generated for this address.",
+            "items" : {
+              "type" : "string",
+              "description" : "Warnings generated for this address.",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          }
+        },
+        "description" : "Collection of warnings generated from the normalization and geocoding service that resulted in a difference between the submitted and normalized address."
+      },
+      "AddressChangeWarningManager" : {
+        "type" : "object",
+        "properties" : {
+          "warnings" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Collection of warnings generated from the normalization and geocoding service that resulted in a difference between the submitted and normalized address.",
+            "items" : {
+              "$ref" : "#/components/schemas/AddressChangeWarning"
+            },
+            "types" : [ "array" ]
+          }
+        },
+        "description" : "Address normalization changes and warnings"
+      },
+      "AddressResultStatus" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "description" : "Short description describing the result code response",
+            "types" : [ "string" ]
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Long description describing the result code response",
+            "types" : [ "string" ]
+          }
+        },
+        "description" : "Address geocoding and normalization result and/or error"
+      },
+      "AuthType" : {
+        "type" : "string",
+        "description" : "Configures the authentication scheme type to be used: none, basic authentication, or oauth2 authentication",
+        "nullable" : true,
+        "types" : [ "string" ],
+        "enum" : [ "NONE", "BASIC", "OAUTH2" ]
+      },
+      "Authentication" : {
+        "required" : [ "authType" ],
+        "type" : "object",
+        "properties" : {
+          "authType" : {
+            "$ref" : "#/components/schemas/AuthType"
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "Username to be used for basic authentication and password grant oauth2 authentication",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "password" : {
+            "type" : "string",
+            "description" : "Password to be used for basic authentication and password grant oauth2 authentication",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "oauth2ClientId" : {
+            "type" : "string",
+            "description" : "Oauth2 client id, required if using Oauth2 authentication",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "oauth2ClientSecret" : {
+            "type" : "string",
+            "description" : "Oauth2 client secret, required if using Oauth2 authentication",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "oauth2AuthServerUrl" : {
+            "type" : "string",
+            "description" : "URL to the Oauth2 token authentication server, required if using Oauth2 authentication",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "oauth2GrantType" : {
+            "$ref" : "#/components/schemas/OauthGrantType"
+          },
+          "oauth2AdditionalParameters" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "Additional parameters to be provided to the Oauth2 token authentication server",
+              "nullable" : true,
+              "types" : [ "string" ]
+            },
+            "description" : "Additional parameters to be provided to the Oauth2 token authentication server",
+            "nullable" : true,
+            "types" : [ "object" ]
+          }
+        },
+        "description" : "Configures the authentication scheme to be used for a target.  Proxy configurations support basic and no authentication."
+      },
+      "ChooseModeConfig" : {
+        "required" : [ "enabled" ],
+        "type" : "object",
+        "properties" : {
+          "excludedForms" : {
+            "minItems" : 0,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WithholdingForm"
+            },
+            "types" : [ "array" ]
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "description" : "Enables 'choose mode' in the UI",
+            "types" : [ "boolean" ],
+            "default" : true
+          }
+        },
+        "description" : "Choose mode configuration"
+      },
+      "EmailConfig" : {
+        "required" : [ "fromAddress", "smtpSettings" ],
+        "type" : "object",
+        "properties" : {
+          "toAddress" : {
+            "minItems" : 1,
+            "type" : "array",
+            "description" : "Primary recipients for an email",
+            "items" : {
+              "type" : "string",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          },
+          "ccAddress" : {
+            "minItems" : 0,
+            "type" : "array",
+            "description" : "Email addresses where completed forms are sent via \"carbon copy\"",
+            "items" : {
+              "type" : "string",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          },
+          "fromAddress" : {
+            "type" : "string",
+            "description" : "From address used to send completed forms",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "smtpSettings" : {
+            "$ref" : "#/components/schemas/SmtpServerConfig"
+          },
+          "pgpConfig" : {
+            "$ref" : "#/components/schemas/PgpConfig"
+          },
+          "encryptEmail" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF that the email should be PGP encrypted",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "signEmail" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF that the email should signed with a certificate",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "Email configuration, required if formSubmissionMode is 'EMAIL' or 'POSTBACK_AND_EMAIL'"
+      },
+      "Employee" : {
+        "required" : [ "address", "firstName", "lastName", "uniqueIdentifier" ],
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "pattern" : "^[A-Za-z.', \\-\\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]{1,}$",
+            "type" : "string",
+            "description" : "Employee's first name. Length must be greater than 0.",
+            "types" : [ "string" ]
+          },
+          "middleInitial" : {
+            "pattern" : "^[A-Za-z\\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]{0,1}$",
+            "type" : "string",
+            "description" : "Employee's middle initial.",
+            "types" : [ "string" ]
+          },
+          "lastName" : {
+            "pattern" : "^[A-Za-z.', \\-\\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]{1,}$",
+            "type" : "string",
+            "description" : "Employee's last name. Length must be greater than 0.",
+            "types" : [ "string" ]
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "socialSecurityNumber" : {
+            "pattern" : "^([0-9]{3}-[0-9]{2}-[0-9]{4}|[0-9]{9})$",
+            "type" : "string",
+            "description" : "Employee's Social Security Number. Must be exactly 9 digits. All non-numeric characters will be automatically removed before validation (for example, 123-45-6789 will be validated as 123456789). For SPF US only.",
+            "types" : [ "string" ]
+          },
+          "socialInsuranceNumber" : {
+            "pattern" : "^([0-9]{3}-[0-9]{3}-[0-9]{3}|[0-9]{9}|[0-9]{3} [0-9]{3} [0-9]{3})$",
+            "type" : "string",
+            "description" : "Employee's Social Insurance Number. Must be exactly 9 digits. All non-numeric characters will be automatically removed before validation (for example, 123-456-789 will be validated as 123456789). For Canadian SPF only.",
+            "types" : [ "string" ]
+          },
+          "socialInsuranceNumberExpiryDate" : {
+            "pattern" : "^(?:(?:0[13578]|1[02])(\\/)(?:31)(\\/)|(?:(?:0[13-9]|1[0-2])(\\/)(?:29|30)(\\/)))(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})$|^(?:02(\\/)29(\\/)(?:(?:(?:1[6-9]|[2-9]\\d){1}(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:(?:0[1-9])|(?:1[0-2]))(\\/)(?:0[1-9]|1\\d|2[0-8])(\\/)(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})$|^(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})(-)(?:(?:0[13578]|1[02])(-)(?:31)|(?:(?:0[13-9]|1[0-2])(-)(?:29|30)))$|^((?:(?:(?:1[6-9]|[2-9]\\d){1}(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)02(-)29)$|^(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})(-)(?:(?:0[1-9])|(?:1[0-2]))(-)(?:0[1-9]|1\\d|2[0-8])$",
+            "type" : "string",
+            "description" : "Employee's Social Insurance Number expiration data, used for temporary Social Insurance Numbers. For Canadian SPF only.",
+            "types" : [ "string" ]
+          },
+          "country" : {
+            "pattern" : "^(AC|AD|AE|AF|AG|AI|AL|AM|AN|AO|AQ|AR|AS|AT|AU|AW|AX|AZ|BA|BB|BD|BE|BF|BG|BH|BI|BJ|BL|BM|BN|BO|BQ|BR|BS|BT|BU|BV|BW|BY|BZ|CA|CC|CD|CF|CG|CH|CI|CK|CL|CM|CN|CO|CP|CR|CS|CU|CV|CW|CX|CY|CZ|DE|DG|DJ|DK|DM|DO|DZ|EA|EC|EE|EG|EH|ER|ES|ET|EU|EZ|FI|FJ|FK|FM|FO|FR|FX|GA|GB|GD|GE|GF|GG|GH|GI|GL|GM|GN|GP|GQ|GR|GS|GT|GU|GW|GY|HK|HM|HN|HR|HT|HU|IC|ID|IE|IL|IM|IN|IO|IQ|IR|IS|IT|JE|JM|JO|JP|KE|KG|KH|KI|KM|KN|KP|KR|KW|KY|KZ|LA|LB|LC|LI|LK|LR|LS|LT|LU|LV|LY|MA|MC|MD|ME|MF|MG|MH|MK|ML|MM|MN|MO|MP|MQ|MR|MS|MT|MU|MV|MW|MX|MY|MZ|NA|NC|NE|NF|NG|NI|NL|NO|NP|NR|NT|NU|NZ|OM|PA|PE|PF|PG|PH|PK|PL|PM|PN|PR|PS|PT|PW|PY|QA|RE|RO|RS|RU|RW|SA|SB|SC|SD|SE|SF|SG|SH|SI|SJ|SK|SL|SM|SN|SO|SR|SS|ST|SU|SV|SX|SY|SZ|TA|TC|TD|TF|TG|TH|TJ|TK|TL|TM|TN|TO|TP|TR|TT|TV|TW|TZ|UA|UG|UK|UM|US|UY|UZ|VA|VC|VE|VG|VI|VN|VU|WF|WS|XK|YE|YT|YU|ZA|ZM|ZR|ZW)$",
+            "type" : "string",
+            "description" : "Employee's primary country of residence",
+            "types" : [ "string" ]
+          },
+          "uniqueIdentifier" : {
+            "type" : "string",
+            "description" : "Unique identifier for the employee. Most frequently used to denote the employee’s ID number but can be anything (for example, an HRIS record reference). Length must be greater than 0.",
+            "types" : [ "string" ]
+          },
+          "pin" : {
+            "$ref" : "#/components/schemas/Pin"
+          },
+          "lockInLetters" : {
+            "minItems" : 0,
+            "type" : "array",
+            "description" : "Specifies any jurisdictions where the employee has a Lock in Letter on file with the IRS. For SPF US Only.",
+            "items" : {
+              "$ref" : "#/components/schemas/Locality"
+            },
+            "types" : [ "array" ]
+          },
+          "interstateEmployee" : {
+            "type" : "boolean",
+            "description" : "Special denotation for employees working in PA, US only.",
+            "types" : [ "boolean" ]
+          },
+          "federalValues" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "Employee's most recent Federal values from completing a form W4, US only.",
+              "nullable" : true,
+              "types" : [ "string" ]
+            },
+            "description" : "Employee's most recent Federal values from completing a form W4, US only.",
+            "nullable" : true,
+            "types" : [ "object" ]
+          }
+        },
+        "description" : "The Employee element contains employee data, their physical address and unique information that will populate on forms."
+      },
+      "Employer" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "pattern" : "^[A-Za-z0-9&!.', \\-\\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]{1,}$",
+            "type" : "string",
+            "description" : "Company name of employer.",
+            "types" : [ "string" ]
+          },
+          "federalEIN" : {
+            "pattern" : "^[0-9]{2}[-]?[0-9]{7}$|^[0-9]{9}$",
+            "type" : "string",
+            "description" : "Employer's Federal Employer Information Number. Must be exactly 9 digits.",
+            "types" : [ "string" ]
+          },
+          "stateEIN" : {
+            "pattern" : "^[0-9a-zA-Z /_-]+$",
+            "type" : "string",
+            "description" : "Employer's state tax identification number.  This field is deprecated, please use stateEIN field for each work address object.",
+            "deprecated" : true,
+            "types" : [ "string" ]
+          },
+          "contactPerson" : {
+            "pattern" : "^[A-Za-z.', \\-\\xC0-\\xD6\\xD8-\\xF6\\xF8-\\xFF]{1,}$",
+            "type" : "string",
+            "description" : "The name of the company's contact person.",
+            "types" : [ "string" ]
+          },
+          "telephoneNumber" : {
+            "pattern" : "^([2-9]{1}[0-9]{2}-[2-9]{1}[0-9]{2}-[0-9]{4}|[2-9]{1}[0-9]{2}[2-9]{1}[0-9]{2}[0-9]{4})$",
+            "type" : "string",
+            "description" : "The phone number of the company's contact person (contactPerson).",
+            "types" : [ "string" ]
+          },
+          "firstDateOfEmployment" : {
+            "pattern" : "^(?:(?:0[13578]|1[02])(\\/)(?:31)(\\/)|(?:(?:0[13-9]|1[0-2])(\\/)(?:29|30)(\\/)))(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})$|^(?:02(\\/)29(\\/)(?:(?:(?:1[6-9]|[2-9]\\d){1}(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:(?:0[1-9])|(?:1[0-2]))(\\/)(?:0[1-9]|1\\d|2[0-8])(\\/)(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})$|^(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})(-)(?:(?:0[13578]|1[02])(-)(?:31)|(?:(?:0[13-9]|1[0-2])(-)(?:29|30)))$|^((?:(?:(?:1[6-9]|[2-9]\\d){1}(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(-)02(-)29)$|^(?:(?:1[6-9]|[2-9]\\d){1}\\d{2})(-)(?:(?:0[1-9])|(?:1[0-2]))(-)(?:0[1-9]|1\\d|2[0-8])$",
+            "type" : "string",
+            "description" : "The employee's first date of employment",
+            "types" : [ "string" ]
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/Address"
+          }
+        },
+        "description" : "Contains data used to define the employer, including their mailing address and contact information which populates certain withholding forms. This data is used by tax jurisdictions in the event that they need to contact the employer."
+      },
+      "Encryption" : {
+        "required" : [ "enabled" ],
+        "type" : "object",
+        "properties" : {
+          "encryptionCertificate" : {
+            "type" : "string",
+            "description" : "Encryption certificate to be used for Rijndael encryption of the postback payload, required if enabled is 'true'",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "description" : "Enables SPF to encrypt the postback payload using Rijndael encryption algorithm",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "Configuration for encrypting the postback payload using Rijndael encryption algorithm",
+        "nullable" : true
+      },
+      "FormSubmissionMode" : {
+        "type" : "string",
+        "description" : "Form submission modes, how completed form data will be transmitted",
+        "types" : [ "string" ],
+        "enum" : [ "PRINT", "EMAIL", "POSTBACK", "POSTBACK_AND_EMAIL" ]
+      },
+      "GuidedModeConfig" : {
+        "required" : [ "enabled" ],
+        "type" : "object",
+        "properties" : {
+          "noFlowsCompletePostUrl" : {
+            "type" : "string",
+            "description" : "URI to which a post message will be sent in the event the employee did not complete any guided flows",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "description" : "Enables 'guided mode' in the UI",
+            "types" : [ "boolean" ],
+            "default" : true
+          },
+          "disableLocalitySelection" : {
+            "type" : "boolean",
+            "description" : "Disables ability of employee to opt out of completing forms for a locality",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "disableFederal" : {
+            "type" : "boolean",
+            "description" : "Disables the Federal guided flow",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "Guided mode configuration"
+      },
+      "Locality" : {
+        "type" : "string",
+        "description" : "States and territories",
+        "types" : [ "string" ],
+        "enum" : [ "FEDERAL", "AL", "AK", "AZ", "AR", "AS", "CA", "CO", "CT", "DE", "DC", "FM", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MH", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PW", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "VI", "WA", "WV", "WI", "WY", "CANADA_FEDERAL", "CANADA_PROVINCIAL", "AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT" ]
+      },
+      "LocationData" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Location's ID",
+            "types" : [ "string" ]
+          },
+          "inputAddress" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "normalizedAddress" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "verified" : {
+            "type" : "boolean",
+            "description" : "Address could be verified against USPS",
+            "types" : [ "boolean" ]
+          },
+          "geocoded" : {
+            "type" : "boolean",
+            "description" : "Address could be geocoded to rooftop level",
+            "types" : [ "boolean" ]
+          },
+          "latitude" : {
+            "type" : "string",
+            "description" : "Location's latitude",
+            "types" : [ "string" ]
+          },
+          "longitude" : {
+            "type" : "string",
+            "description" : "Location's longitude",
+            "types" : [ "string" ]
+          },
+          "psdCode" : {
+            "type" : "string",
+            "description" : "Location's Political Subdivision code, used by PA forms",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "eitRate" : {
+            "type" : "string",
+            "description" : "Location's Political Subdivision tax rate, used by PA forms",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "municipalityName" : {
+            "type" : "string",
+            "description" : "Location's municipality",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "cityName" : {
+            "type" : "string",
+            "description" : "Location's city",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "countyName" : {
+            "type" : "string",
+            "description" : "Location's county",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "stateName" : {
+            "type" : "string",
+            "description" : "Location's state",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "schoolDistrictName" : {
+            "type" : "string",
+            "description" : "Location's associated school district name, used by OH forms",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "schoolDistrictCode" : {
+            "type" : "string",
+            "description" : "Location's associated school district code, used by OH forms",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "addressResultCodes" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/AddressResultStatus"
+            },
+            "description" : "Address normalization and geocoding result codes for a given location",
+            "types" : [ "object" ]
+          },
+          "locationCode" : {
+            "type" : "string",
+            "description" : "Symmetry code for this location. For US locations, the format is State Code – County Code – Feature ID Code. For Canadian locations, the format is Provincial Code – 000 – 000.",
+            "types" : [ "string" ]
+          },
+          "municipalityCode" : {
+            "type" : "string",
+            "description" : "Symmetry code for this location's municipality. Derived from the Geographic Names Information System (GNIS) code.",
+            "types" : [ "string" ]
+          },
+          "cityCode" : {
+            "type" : "string",
+            "description" : "Symmetry code for this location's city. Derived from the Geographic Names Information System (GNIS) code.",
+            "types" : [ "string" ]
+          },
+          "countyCode" : {
+            "type" : "string",
+            "description" : "Symmetry code for this location's county. Derived from the three-digit Federal Information Processing System (FIPS) county code",
+            "types" : [ "string" ]
+          },
+          "stateCode" : {
+            "type" : "string",
+            "description" : "Symmetry code for this location's state. For US locations, this is the two-digit Federal Information Processing System (FIPS) state code.",
+            "types" : [ "string" ]
+          },
+          "addressTypeCode" : {
+            "type" : "string",
+            "description" : "Symmetry code for this location's address type",
+            "types" : [ "string" ]
+          },
+          "addressTypeDescription" : {
+            "type" : "string",
+            "description" : "Description for this location's address type",
+            "types" : [ "string" ]
+          }
+        },
+        "description" : "Addresses by ID as Map<String, LocationData>"
+      },
+      "LocationDataManager" : {
+        "type" : "object",
+        "properties" : {
+          "addresses" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/LocationData"
+            },
+            "description" : "Addresses by ID as Map<String, LocationData>",
+            "types" : [ "object" ]
+          },
+          "addressChangeWarningManager" : {
+            "$ref" : "#/components/schemas/AddressChangeWarningManager"
+          },
+          "success" : {
+            "type" : "boolean",
+            "description" : "Returns true if call to webservice was successful ",
+            "types" : [ "boolean" ]
+          },
+          "geocodingError" : {
+            "type" : "boolean",
+            "description" : "Returns true if any of the normalized address contain geocoding errors",
+            "types" : [ "boolean" ]
+          },
+          "messageList" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          }
+        },
+        "description" : "Container for addresses and webservice results used for form determination and form completion"
+      },
+      "LoggingLevel" : {
+        "type" : "string",
+        "description" : "Sets the logging level for SPF, this field is ignored in the hosted version of SPF",
+        "types" : [ "string" ],
+        "enum" : [ "OFF", "TRACE", "DEBUG", "INFO", "WARN", "ERROR" ],
+        "default" : "WARN"
+      },
+      "MiscConfig" : {
+        "type" : "object",
+        "properties" : {
+          "loggingLevel" : {
+            "$ref" : "#/components/schemas/LoggingLevel"
+          },
+          "signatureFormat" : {
+            "type" : "string",
+            "description" : "Defines how the signature line of a form should be formatted",
+            "types" : [ "string" ],
+            "default" : "%name% %dateTime%"
+          },
+          "signatureTimezone" : {
+            "type" : "string",
+            "description" : "Timezone to be used when signing a form",
+            "types" : [ "string" ],
+            "default" : "UTC"
+          },
+          "sessionCompletedRedirect" : {
+            "type" : "string",
+            "description" : "URL that the employee will be redirected to when the session is completed",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "sessionExpiredRedirect" : {
+            "type" : "string",
+            "description" : "URL that the employee will be redirected to if the session expires",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "maskSsn" : {
+            "type" : "boolean",
+            "description" : "Instructs the UI to mask the employee's Social Security Number on form previews",
+            "types" : [ "boolean" ],
+            "default" : true
+          },
+          "enableTestingView" : {
+            "type" : "boolean",
+            "description" : "Enables the testing view, allowing the UI to display tax parameters, finalized forms, and the postback payload",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "Miscellaneous configuration"
+      },
+      "Mode" : {
+        "type" : "string",
+        "description" : "SPF mode of operation used to complete the form",
+        "types" : [ "string" ],
+        "enum" : [ "choose", "guided" ]
+      },
+      "OauthGrantType" : {
+        "type" : "string",
+        "description" : "Oauth2 grant type, required if using Oauth2 authentication, supporting password and client credentials type grants",
+        "nullable" : true,
+        "types" : [ "string" ],
+        "enum" : [ "PASSWORD", "CLIENT_CREDENTIALS" ]
+      },
+      "PgpConfig" : {
+        "required" : [ "publicKey", "publicKeyAlias" ],
+        "type" : "object",
+        "properties" : {
+          "publicKey" : {
+            "type" : "string",
+            "description" : "Base 64 encoded public key to be used to encrypt an email",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "publicKeyAlias" : {
+            "type" : "string",
+            "description" : "User ID or alias associated with the public key",
+            "nullable" : true,
+            "types" : [ "string" ]
+          }
+        },
+        "description" : "PGP encryption configuration, this is a required field if encryptEmail is 'true'",
+        "nullable" : true
+      },
+      "Pin" : {
+        "required" : [ "pinValue" ],
+        "type" : "object",
+        "properties" : {
+          "pinValue" : {
+            "type" : "string",
+            "description" : "Pin number employee must enter prior to submitting a completed form.",
+            "types" : [ "string" ]
+          },
+          "pinMaxLength" : {
+            "type" : "integer",
+            "description" : "Maximum number of character user may enter in the pin input field, value must be greater than or equal to pinValue length. A value of 0 indicates no limit",
+            "format" : "int32",
+            "types" : [ "integer" ],
+            "default" : 0
+          }
+        },
+        "description" : "Pin number to be entered by employee during form submission",
+        "nullable" : true
+      },
+      "Postback" : {
+        "type" : "object",
+        "properties" : {
+          "taxParameters" : {
+            "$ref" : "#/components/schemas/TaxParameters"
+          },
+          "inputRegistration" : {
+            "type" : "string",
+            "description" : "SpfRegistration data used to create a session",
+            "types" : [ "string" ]
+          },
+          "locationDataManager" : {
+            "$ref" : "#/components/schemas/LocationDataManager"
+          },
+          "taxDataManager" : {
+            "$ref" : "#/components/schemas/TaxDataManager"
+          },
+          "transactionLog" : {
+            "$ref" : "#/components/schemas/TransactionLog"
+          },
+          "pdf" : {
+            "type" : "string",
+            "description" : "The completed form pdf, base 64 encoded",
+            "types" : [ "string" ]
+          }
+        }
+      },
+      "PostbackConfig" : {
+        "required" : [ "target" ],
+        "type" : "object",
+        "properties" : {
+          "timeout" : {
+            "maximum" : 60,
+            "minimum" : 0,
+            "type" : "integer",
+            "description" : "Maximum number second SPF will wait for a response when sending the postback",
+            "format" : "int32",
+            "types" : [ "integer" ],
+            "default" : 15
+          },
+          "failureNotificationEmail" : {
+            "type" : "string",
+            "description" : "Email address to be sent a notification if a postback request fails",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "encryption" : {
+            "$ref" : "#/components/schemas/Encryption"
+          },
+          "target" : {
+            "$ref" : "#/components/schemas/TargetConfig"
+          },
+          "proxy" : {
+            "$ref" : "#/components/schemas/TargetConfig"
+          },
+          "trustAllCertificates" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF to trust all certificates for HTTPS/TLS connections, this is useful when using a self-signed certificate",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "Postback configuration, required if formSubmissionMode is 'POSTBACK' or 'POSTBACK_AND_EMAIL'"
+      },
+      "PresentationConfig" : {
+        "type" : "object",
+        "properties" : {
+          "companyLogoSrc" : {
+            "type" : "string",
+            "description" : "URL or Base 64 encoded image to be display on the helper pages welcome screen",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "iframeParentDomain" : {
+            "type" : "string",
+            "description" : "Domain of the parent browser window when using SPF in an iframe",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "baseUri" : {
+            "type" : "string",
+            "description" : "Base URI for UI when retrieving resources when using a proxy",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "css" : {
+            "minItems" : 0,
+            "type" : "array",
+            "description" : "Defines the CSS stylesheets that are used to display Symmetry Payroll Forms.",
+            "items" : {
+              "type" : "string",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          },
+          "text" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "string",
+                "description" : "Custom text for the UI, accepted as Map<SupportedLanguages, Map<String, String>>, see #/components/schemas/SupportedLanguages",
+                "types" : [ "string" ]
+              },
+              "description" : "Custom text for the UI, accepted as Map<SupportedLanguages, Map<String, String>>, see #/components/schemas/SupportedLanguages",
+              "types" : [ "object" ]
+            },
+            "description" : "Custom text for the UI, accepted as Map<SupportedLanguages, Map<String, String>>, see #/components/schemas/SupportedLanguages",
+            "types" : [ "object" ]
+          },
+          "lockPrefilledWsFields" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF to lock and prevent employee editing data from geocoding the webservice when used directly on forms, e.g. disables editing derived PSD codes",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "showSignOutButtonWhenNoFlowsSelected" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF to display a sign out button if guided mode surveys result in no forms to complete",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "helperPagesValidateSsn" : {
+            "type" : "boolean",
+            "description" : "Instructs the UI to request the employee enter their SSN a second time for validation",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "helperPagesAllowResidentAddrCopy" : {
+            "type" : "boolean",
+            "description" : "Allows the employee to copy their resident address as a work address",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "enableFinishPage" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF to direct the employee to a summary page upon session complete. Default is true.",
+            "types" : [ "boolean" ],
+            "default" : true
+          },
+          "w4AssistantMode" : {
+            "type" : "boolean",
+            "description" : "Configures the helper pages to operate under single form mode to complete the Federal W4 only, allowing the employee to enter all necessary information",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "enableW4AssistantFinishPage" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF to direct the employee to a summary page upon completion the Federal W4. Default is true.",
+            "types" : [ "boolean" ],
+            "default" : true
+          }
+        },
+        "description" : "SPF presentation configuration"
+      },
+      "RegistrationLink" : {
+        "type" : "object",
+        "properties" : {
+          "host" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "port" : {
+            "type" : "integer",
+            "format" : "int32",
+            "types" : [ "integer" ]
+          },
+          "path" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          }
+        },
+        "nullable" : true
+      },
+      "SingleFormModeConfig" : {
+        "required" : [ "enabled" ],
+        "type" : "object",
+        "properties" : {
+          "form" : {
+            "$ref" : "#/components/schemas/WithholdingForm"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "description" : "Enables single form mode",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "Single form mode configuration"
+      },
+      "SmtpServerConfig" : {
+        "required" : [ "host", "port" ],
+        "type" : "object",
+        "properties" : {
+          "host" : {
+            "type" : "string",
+            "description" : "Hosted domain for the SMTP gateway to be used by SPF",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "username" : {
+            "type" : "string",
+            "description" : "Username for connecting to the SMTP gateway",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "password" : {
+            "type" : "string",
+            "description" : "Password for connecting to the SMTP gateway",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "port" : {
+            "maximum" : 65535,
+            "minimum" : 0,
+            "type" : "integer",
+            "description" : "Port for connecting to the SMTP gateway, commonly 25, 587, or 2525",
+            "format" : "int32",
+            "nullable" : true,
+            "types" : [ "integer" ]
+          },
+          "enableHttps" : {
+            "type" : "boolean",
+            "description" : "Enables HTTPS communication with the SMTP gateway",
+            "types" : [ "boolean" ],
+            "default" : false
+          },
+          "requireHttps" : {
+            "type" : "boolean",
+            "description" : "Requires that all communication with the SMTP gateway is done over HTTPS",
+            "types" : [ "boolean" ],
+            "default" : false
+          }
+        },
+        "description" : "SMTP gateway configuration, this is a required field for on-premise instances of SPF if email is enabled",
+        "nullable" : true
+      },
+      "SpfConfiguration" : {
+        "required" : [ "formSubmissionMode" ],
+        "type" : "object",
+        "properties" : {
+          "formSubmissionMode" : {
+            "$ref" : "#/components/schemas/FormSubmissionMode"
+          },
+          "webservice" : {
+            "$ref" : "#/components/schemas/WebserviceConfig"
+          },
+          "chooseMode" : {
+            "$ref" : "#/components/schemas/ChooseModeConfig"
+          },
+          "guidedMode" : {
+            "$ref" : "#/components/schemas/GuidedModeConfig"
+          },
+          "postback" : {
+            "$ref" : "#/components/schemas/PostbackConfig"
+          },
+          "email" : {
+            "$ref" : "#/components/schemas/EmailConfig"
+          },
+          "misc" : {
+            "$ref" : "#/components/schemas/MiscConfig"
+          },
+          "presentation" : {
+            "$ref" : "#/components/schemas/PresentationConfig"
+          },
+          "singleFormMode" : {
+            "$ref" : "#/components/schemas/SingleFormModeConfig"
+          }
+        },
+        "description" : "SPF application configuration settings",
+        "nullable" : true
+      },
+      "SpfRegistration" : {
+        "required" : [ "config", "employee" ],
+        "type" : "object",
+        "properties" : {
+          "employee" : {
+            "$ref" : "#/components/schemas/Employee"
+          },
+          "employer" : {
+            "$ref" : "#/components/schemas/Employer"
+          },
+          "workAddresses" : {
+            "minItems" : 1,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Address"
+            },
+            "types" : [ "array" ]
+          },
+          "nexus" : {
+            "minItems" : 0,
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "description" : "States and territories",
+              "types" : [ "string" ],
+              "enum" : [ "FEDERAL", "AL", "AK", "AZ", "AR", "AS", "CA", "CO", "CT", "DE", "DC", "FM", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MH", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PW", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "VI", "WA", "WV", "WI", "WY", "CANADA_FEDERAL", "CANADA_PROVINCIAL", "AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT" ]
+            },
+            "types" : [ "array" ]
+          },
+          "config" : {
+            "$ref" : "#/components/schemas/SpfConfiguration"
+          }
+        }
+      },
+      "SpfRegistrationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "link" : {
+            "$ref" : "#/components/schemas/RegistrationLink"
+          },
+          "token" : {
+            "type" : "string",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "message" : {
+            "type" : "string",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "success" : {
+            "type" : "boolean",
+            "types" : [ "boolean" ]
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/SpfRegistrationResponseType"
+          },
+          "validationErrors" : {
+            "minItems" : 0,
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ValidationError"
+            },
+            "types" : [ "array" ]
+          }
+        }
+      },
+      "SpfRegistrationResponseType" : {
+        "type" : "string",
+        "types" : [ "string" ],
+        "enum" : [ "Success", "ValidationError", "GeoCodingError", "ParseError", "AppNotInitialized", "InternalError" ]
+      },
+      "SupportedLanguages" : {
+        "type" : "string",
+        "description" : "Presentation text language support. Possible values are \"ENGLISH\", \"FRENCH\", \"SPANISH\"",
+        "types" : [ "string" ],
+        "enum" : [ "ENGLISH", "FRENCH", "SPANISH" ]
+      },
+      "TargetConfig" : {
+        "required" : [ "authentication" ],
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string",
+            "description" : "Target's URI, this field should be used to denote the target endpoint",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "host" : {
+            "type" : "string",
+            "description" : "Target's host domain, this field should be used to denote the target proxy domain",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "port" : {
+            "maximum" : 65535,
+            "minimum" : 0,
+            "type" : "integer",
+            "description" : "Target proxy's port, this field is required if configuring this object for a proxy",
+            "format" : "int32",
+            "nullable" : true,
+            "types" : [ "integer" ]
+          },
+          "authentication" : {
+            "$ref" : "#/components/schemas/Authentication"
+          }
+        },
+        "description" : "Configuration for Postback target and proxy, as well as, the Webservice proxy.",
+        "nullable" : true
+      },
+      "TaxDataManager" : {
+        "type" : "object",
+        "properties" : {
+          "taxes" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Taxes associated with the employee's home and work addresses",
+            "items" : {
+              "$ref" : "#/components/schemas/tax"
+            },
+            "types" : [ "array" ]
+          },
+          "messageList" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          }
+        },
+        "description" : "Container for tax and webservice results for normalized and geocoded addresses"
+      },
+      "TaxParameter" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "Tax parameter's ID",
+            "types" : [ "string" ]
+          },
+          "value" : {
+            "type" : "object",
+            "description" : "Tax parameter's value",
+            "nullable" : true,
+            "types" : [ "object" ]
+          },
+          "valueType" : {
+            "type" : "string",
+            "description" : "Data type of the tax parameter's value field",
+            "types" : [ "string" ]
+          },
+          "regexOptions" : {
+            "type" : "string",
+            "description" : "Tax parameter's allowed values when valueType is 'regex'",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Description of the tax parameter, this is field is not returned outside of a documentation context",
+            "nullable" : true,
+            "types" : [ "string" ]
+          }
+        }
+      },
+      "TaxParameters" : {
+        "type" : "object",
+        "properties" : {
+          "taxParameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TaxParameter"
+            },
+            "types" : [ "array" ]
+          }
+        },
+        "description" : "Tax parameter representation of a completed form"
+      },
+      "TransactionLog" : {
+        "type" : "object",
+        "properties" : {
+          "flowId" : {
+            "type" : "string",
+            "description" : "Guided mode flow ID of the current flow if using guided mode, otherwise null",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "formId" : {
+            "$ref" : "#/components/schemas/WithholdingForm"
+          },
+          "formName" : {
+            "type" : "string",
+            "description" : "Name of the completed form",
+            "types" : [ "string" ]
+          },
+          "formTitle" : {
+            "type" : "string",
+            "description" : "Title of the completed form",
+            "types" : [ "string" ]
+          },
+          "formLocality" : {
+            "$ref" : "#/components/schemas/Locality"
+          },
+          "formVersion" : {
+            "type" : "string",
+            "description" : "Version of the completed form with SPF",
+            "types" : [ "string" ]
+          },
+          "mode" : {
+            "$ref" : "#/components/schemas/Mode"
+          },
+          "isResidentStateForm" : {
+            "type" : "boolean",
+            "description" : "Flag denoting if the completed form is a resident state form",
+            "types" : [ "boolean" ]
+          },
+          "isWorkStateForm" : {
+            "type" : "boolean",
+            "description" : "Flag denoting if the completed form is a work state form",
+            "types" : [ "boolean" ]
+          },
+          "isLocalForm" : {
+            "type" : "boolean",
+            "description" : "Flag denoting that the completed form is a local municipality form",
+            "types" : [ "boolean" ]
+          },
+          "isLastForm" : {
+            "type" : "boolean",
+            "description" : "Flag denoting that the employee has completed all required form based on their addresses and guided mode survey questions.  This field is not returned for choose mode",
+            "nullable" : true,
+            "types" : [ "boolean" ]
+          },
+          "dataModel" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "History of the employee's interaction with SPF",
+              "types" : [ "string" ]
+            },
+            "description" : "History of the employee's interaction with SPF",
+            "types" : [ "object" ]
+          },
+          "log" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "types" : [ "string" ]
+            },
+            "types" : [ "array" ]
+          },
+          "timestamp" : {
+            "type" : "string",
+            "description" : "Datetime stamp of form completion and submission, using a format of MM/DD/YYYY HH:MM:SS Z",
+            "types" : [ "string" ]
+          },
+          "version" : {
+            "type" : "string",
+            "description" : "Current version of SPF",
+            "types" : [ "string" ]
+          }
+        },
+        "description" : "Log of the complete form"
+      },
+      "ValidationError" : {
+        "type" : "object",
+        "properties" : {
+          "field" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "message" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "rejectedValue" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          }
+        }
+      },
+      "WebserviceConfig" : {
+        "required" : [ "enabled" ],
+        "type" : "object",
+        "properties" : {
+          "timeout" : {
+            "maximum" : 60,
+            "minimum" : 0,
+            "type" : "integer",
+            "description" : "Timeout to be used while waiting for the call to the webservice to complete",
+            "format" : "int32",
+            "nullable" : true,
+            "types" : [ "integer" ],
+            "default" : 15
+          },
+          "apiKey" : {
+            "type" : "string",
+            "description" : "Symmetry provided API access token to the address normalization and geocoding webservice",
+            "nullable" : true,
+            "types" : [ "string" ]
+          },
+          "proxy" : {
+            "$ref" : "#/components/schemas/TargetConfig"
+          },
+          "enabled" : {
+            "type" : "boolean",
+            "description" : "Enables the address normalization and geocoding webservice",
+            "types" : [ "boolean" ],
+            "default" : true
+          },
+          "continueIfUnsuccessful" : {
+            "type" : "boolean",
+            "description" : "Allows registration process to continue in the event that the webservice fails",
+            "types" : [ "boolean" ],
+            "default" : true
+          },
+          "useNormalizedAddress" : {
+            "type" : "boolean",
+            "description" : "Instructs SPF to use the normalized address returned from the webservice for form determination and when filling out a form",
+            "types" : [ "boolean" ],
+            "default" : true
+          },
+          "showNormalizedAddressNotes" : {
+            "type" : "boolean",
+            "description" : "Instructs the UI to display address changed notes due to address normalization",
+            "types" : [ "boolean" ],
+            "default" : true
+          }
+        },
+        "description" : "Address normalization and geocoding webservice configuration. Contains all data necessary to make a successful call to the Symmetry Location Service (SLS) REST API."
+      },
+      "WithholdingForm" : {
+        "type" : "string",
+        "description" : "Form IDs",
+        "nullable" : true,
+        "types" : [ "string" ],
+        "enum" : [ "AL101", "AL101SP", "AL103", "AR101", "AR102", "AR103", "AR104", "AR105", "AZ101", "AZ102", "AZ103", "AZ107", "CA101", "CA101SP", "CO101", "CO102", "CO103", "CT101", "CT102", "DC101", "DC102", "DE101", "DE103", "GA101", "HI101", "HI103", "IA101", "IA101SP", "IA102", "ID101", "ID102", "IL101", "IL101SP", "IL102", "IN101", "IN102", "IN104", "KS101", "KS102", "KY101", "LA101", "LA102", "MA101", "MA102", "MD101", "MD102", "ME101", "ME102", "MI101", "MI110", "MI111", "MI112", "MI113", "MI114", "MI115", "MI116", "MI117", "MI118", "MI119", "MI120", "MI121", "MI122", "MI123", "MI124", "MI125", "MI126", "MI127", "MI128", "MI129", "MI130", "MI131", "MI132", "MN102", "MN103", "MO101", "MO102", "MO103", "MS101", "MT101", "NC101", "NC102", "NC103", "ND101", "ND104", "ND105", "NE101", "NE103", "NJ101", "NJ102", "NM101", "NM102", "NY101", "NY102", "NY103", "NY105", "NY106", "NY107", "NY108", "OH101", "OK101", "OK102", "OR101", "OR101SP", "OR102", "OR102SP", "OR103", "OR103SP", "PA103", "PA112", "PA113", "PA114", "PR101", "PR101SP", "RI101", "SC101", "UT101", "VA101", "VA102", "VT101", "W4101", "W4101SP", "W6101", "W8101", "WI101", "WI101SP", "WI102", "WI103", "WI107", "WV101", "WV102", "WV103", "TD1", "TD1FR", "TD1AB", "TD1ABFR", "TD1BC", "TD1BCFR", "TD1MB", "TD1MBFR", "TD1NB", "TD1NBFR", "TD1NL", "TD1NLFR", "TD1NS", "TD1NSFR", "TD1NT", "TD1NTFR", "TD1NU", "TD1NUFR", "TD1ON", "TD1ONFR", "TD1PE", "TD1PEFR", "TD1SK", "TD1SKFR", "TD1YT", "TD1YTFR", "TP1015", "TP1015FR" ]
+      },
+      "tax" : {
+        "type" : "object",
+        "properties" : {
+          "uniqueTaxId" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "description" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "rate" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "taxLimitPeriod" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "wageBase" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "taxLimitAmount" : {
+            "type" : "string",
+            "types" : [ "string" ]
+          },
+          "residentTax" : {
+            "type" : "boolean",
+            "types" : [ "boolean" ]
+          },
+          "employerTax" : {
+            "type" : "boolean",
+            "types" : [ "boolean" ]
+          }
+        },
+        "description" : "Taxes associated with the employee's home and work addresses"
+      }
+    }
+  }
+}
